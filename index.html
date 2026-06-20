@@ -207,8 +207,14 @@
         }
 
         function initChat() {
+            // Récupération des valeurs depuis les champs input
             monPseudo = document.getElementById("pseudoInput").value.trim() || "Anonyme";
-            monVraiNom = document.getElementById("vraiNomInput").value.trim() || "Inconnu"; // Capture ici
+            monVraiNom = document.getElementById("vraiNomInput").value.trim() || "Inconnu";
+    
+            // Sauvegarde dans le navigateur
+            localStorage.setItem("duoPseudo", monPseudo);
+            localStorage.setItem("duoNom", monVraiNom);
+    
             document.getElementById("setup").style.display = "none";
             document.getElementById("chat-interface").style.display = "block";
         }
