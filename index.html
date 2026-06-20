@@ -160,11 +160,15 @@
                 <div class="search-area">
                     <p style="color: #aaa; margin-bottom: 5px; font-size: 0.9rem; text-align: left;">🔍 Rechercher un utilisateur :</p>
                     <div style="display: flex; gap: 8px;">
-                        <input type="text" id="searchInput" placeholder="Entrer le pseudo exact..." style="margin: 0;">
+                        <select id="searchType" style="padding: 10px; border-radius: 12px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text);">
+                            <option value="pseudo">Par Pseudo</option>
+                            <option value="vraiNom">Par Vrai Nom</option>
+                        </select>
+                        <input type="text" id="searchInput" placeholder="Entrer le nom ou pseudo..." style="margin: 0;">
                         <button onclick="rechercherPseudo()" style="width: auto; margin: 0; padding: 0 16px; background: #6366f1;">Chercher</button>
-                    </div>
-                    <div id="search-result"></div>
                 </div>
+    <div id="search-result"></div>
+</div>
             </div>
 
             <div id="chat-interface">
@@ -251,7 +255,9 @@
                 phareConn.on('open', () => {
                     phareConn.send({
                         type: "search-response",
-                        room: monSalonActuel
+                        room: monSalonActuel,
+                        pseudo: monPseudo,     // On ajoute le pseudo
+                        realName: monVraiNom   // On ajoute le vrai nom
                     });
                     setTimeout(() => phareConn.close(), 500);
                 });
@@ -279,16 +285,20 @@
         }
 
         function rechercherPseudo() {
-            const target = document.getElementById("searchInput").value.trim();
+            const type = document.getElementById("searchType").value; // pseudo ou vraiNom
+            const target = document.getElementById("searchInput").value.trim().toLowerCase();
             const resultDiv = document.getElementById("search-result");
-            if (!target) return alert("Entre un pseudo !");
+            if (!target) return alert("Entre quelque chose !");
 
-            resultDiv.innerHTML = "<span style='color: #eab308;'>🔍 Scan du réseau en cours...</span>";
+            resultDiv.innerHTML = "<span style='color: #eab308;'>🔍 Scan en cours...</span>";
 
             let searchPeer = new Peer(undefined, peerOptions);
+    
             searchPeer.on('open', () => {
-                let searchConn = searchPeer.connect("user-" + target.toLowerCase());
-                
+                // On se connecte au phare de la cible
+                let searchConn = searchPeer.connect("user-" + target); 
+        
+                // Définition du timeout de 4 secondes
                 let timeout = setTimeout(() => {
                     resultDiv.innerHTML = "<span style='color: #ef4444;'>❌ Hors-ligne ou introuvable.</span>";
                     searchPeer.destroy();
@@ -296,17 +306,27 @@
 
                 searchConn.on('data', (data) => {
                     if (data.type === "search-response") {
+                        // Si on reçoit une réponse avant la fin du timeout, on l'annule
                         clearTimeout(timeout);
+                
                         resultDiv.innerHTML = `
-                            <span style="color: #10b981;">🟢 EN LIGNE !</span><br>
-                            <span style="color: #0ea5e9;">🔑 Code Salon : <b>${data.room}</b></span><br>
-                            <button class="join-btn-quick" onclick="rejoindreDirectement('${data.room}')">Rejoindre directement</button>
+                            <span style="color: #10b981;">🟢 TROUVÉ !</span><br>
+                            <span style="color: var(--text);">👤 Pseudo : <b>${data.pseudo}</b></span><br>
+                            <span style="color: var(--text);">📛 Nom : <b>${data.realName}</b></span><br>
+                            <button class="join-btn-quick" onclick="rejoindreDirectement('${data.room}')">Rejoindre ${data.pseudo}</button>
                         `;
                         searchPeer.destroy();
-                    }
-                });
-            });
-        }
+            }
+        });
+        
+        // Gestion des erreurs de connexion (si le peer n'existe pas du tout)
+        searchConn.on('error', () => {
+            clearTimeout(timeout);
+            resultDiv.innerHTML = "<span style='color: #ef4444;'>❌ Erreur de connexion.</span>";
+            searchPeer.destroy();
+        });
+    });
+}
 
         function setupDataHandlers() {
             setTimeout(() => {
