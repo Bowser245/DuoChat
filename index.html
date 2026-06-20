@@ -89,7 +89,23 @@
         .msg-wrapper { display: flex; flex-direction: column; max-width: 80%; }
         .msg-wrapper.me { align-self: flex-end; align-items: flex-end; }
         .msg-wrapper.them { align-self: flex-start; align-items: flex-start; }
-        
+        /* Style du survol */
+        .msg-wrapper { position: relative; }
+        .msg-wrapper .tooltip {
+            visibility: hidden;
+            width: 150px;
+            background: #000;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 110%;
+            left: 0;
+            font-size: 0.75rem;
+        }
+        .msg-wrapper:hover .tooltip { visibility: visible; }
         .pseudo-tag { font-size: 0.75rem; color: var(--sys-text); margin-bottom: 2px; font-weight: 600; padding: 0 4px; }
         
         .msg-bubble { padding: 10px 16px; border-radius: 18px; font-size: 0.95rem; line-height: 1.4; word-break: break-word; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
@@ -131,6 +147,8 @@
             <div id="setup">
                 <p style="color: #aaa; margin-bottom: 5px; font-size: 0.9rem; text-align: left;">Choisis ton pseudo :</p>
                 <input type="text" id="pseudoInput" placeholder="Ex: Alex">
+                <p style="color: #aaa; margin-bottom: 5px; font-size: 0.9rem; text-align: left;">Ton Vrai Nom :</p>
+                <input type="text" id="vraiNomInput" placeholder="Ex: Gilbert Strazitan">
                 <br><br>
                 <p style="color: #aaa; margin-bottom: 5px; font-size: 0.9rem; text-align: left;">Code unique du salon :</p>
                 <input type="text" id="roomInput" placeholder="Ex: salon-secret">
@@ -168,7 +186,8 @@
         let monPseudo = "Anonyme";
         let typingTimeout = null;
         let monSalonActuel = "";
-
+        let monVraiNom = "";
+        
         const peerOptions = {
             secure: true,
             port: 443
@@ -184,6 +203,7 @@
 
         function initChat() {
             monPseudo = document.getElementById("pseudoInput").value.trim() || "Anonyme";
+            monVraiNom = document.getElementById("vraiNomInput").value.trim() || "Inconnu"; // Capture ici
             document.getElementById("setup").style.display = "none";
             document.getElementById("chat-interface").style.display = "block";
         }
@@ -296,7 +316,7 @@
             conn.on('open', () => {
                 document.getElementById("status").textContent = "Discussion en cours (2/2)";
                 document.getElementById("status").style.color = "#10b981";
-                conn.send({ type: "join", pseudo: monPseudo });
+                conn.send({ type: "join", pseudo: monPseudo, nom: monVraiNom });
             });
 
             conn.on('data', (data) => {
