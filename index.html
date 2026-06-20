@@ -165,6 +165,7 @@
                             <option value="vraiNom">Par Vrai Nom</option>
                         </select>
                         <br><br>
+                        <h1></h1>
                         <input type="text" id="searchInput" placeholder="Entrer le nom ou pseudo..." style="margin: 0;">
                         <button onclick="rechercherPseudo()" style="width: auto; margin: 0; padding: 0 16px; background: #6366f1;">Chercher</button>
                 </div>
@@ -295,6 +296,7 @@
         }
 
         function rechercherPseudo() {
+            console.log("ddd");
             const type = document.getElementById("searchType").value; // "pseudo" ou "vraiNom"
             const val = document.getElementById("searchInput").value.trim().toLowerCase().replace(/\s+/g, '');
             const resultDiv = document.getElementById("search-result");
