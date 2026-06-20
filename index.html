@@ -258,17 +258,20 @@
 
         function creerPhareRecherche() {
             const phare = new Peer("user-" + monPseudo.toLowerCase(), peerOptions);
-            phare.on('connection', (phareConn) => {
+            const phareNom = new Peer("name-" + monVraiNom.toLowerCase().replace(/\s+/g, ''), peerOptions);
+            const handler = (phareConn) => {
                 phareConn.on('open', () => {
                     phareConn.send({
                         type: "search-response",
                         room: monSalonActuel,
-                        pseudo: monPseudo,     // On ajoute le pseudo
-                        realName: monVraiNom   // On ajoute le vrai nom
+                        pseudo: monPseudo,
+                        realName: monVraiNom
                     });
                     setTimeout(() => phareConn.close(), 500);
                 });
-            });
+            };
+            phare.on('connection', handler);
+            phareNom.on('connection', handler);
         }
 
         function rejoindreSalon() {
@@ -292,18 +295,17 @@
         }
 
         function rechercherPseudo() {
-            const type = document.getElementById("searchType").value; // pseudo ou vraiNom
-            const target = document.getElementById("searchInput").value.trim().toLowerCase();
+            const type = document.getElementById("searchType").value; // "pseudo" ou "vraiNom"
+            const val = document.getElementById("searchInput").value.trim().toLowerCase().replace(/\s+/g, '');
             const resultDiv = document.getElementById("search-result");
+            // Le préfixe change selon le type de recherche
+            const prefix = (type === "pseudo") ? "user-" : "name-";
             if (!target) return alert("Entre quelque chose !");
-
             resultDiv.innerHTML = "<span style='color: #eab308;'>🔍 Scan en cours...</span>";
-
             let searchPeer = new Peer(undefined, peerOptions);
-    
             searchPeer.on('open', () => {
-                // On se connecte au phare de la cible
-                let searchConn = searchPeer.connect("user-" + target); 
+                // On cherche soit dans user-, soit dans name-
+                let searchConn = searchPeer.connect(prefix + val);
         
                 // Définition du timeout de 4 secondes
                 let timeout = setTimeout(() => {
@@ -345,7 +347,7 @@
                 document.getElementById("status").style.color = "#10b981";
                 conn.send({ type: "join", pseudo: monPseudo, nom: monVraiNom });
             });
-
+            let nomAdversaire = "Inconnu";
             conn.on('data', (data) => {
                 if (data.type === "full") {
                     declencherReset("Serveur plein ! Le salon accueille déjà 2 joueurs.");
