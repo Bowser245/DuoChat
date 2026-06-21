@@ -2,6 +2,9 @@
 
 Un salon de discussion privé, ultra-léger et sécurisé en P2P (Peer-to-Peer) utilisant **PeerJS**.
 
+
+
+
 ## 🚀 Fonctionnalités
 - **Salons éphémères :** Pas de base de données, les messages transitent directement entre les deux utilisateurs.
 - **Commandes Chat :** Intégration de commandes à la Minecraft (`/help`, `/clear`, `/pseudo`, `/roll`, `/matrix`, `/me`...).
