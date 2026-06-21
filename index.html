@@ -211,9 +211,11 @@
             // Récupération des valeurs depuis les champs input
             monPseudo = document.getElementById("pseudoInput").value.trim() || "Anonyme";
             monVraiNom = document.getElementById("vraiNomInput").value.trim() || "Inconnu";
-    
+            const monIdDeBase = monPseudo + "#" + monVraiNom + "@" + room
+            console.log(monIdDeBase)
             // Sauvegarde dans le navigateur
             localStorage.setItem("duoPseudo", monPseudo);
+            localStorage.setItem("duoId", monIdDeBase);
             localStorage.setItem("duoNom", monVraiNom);
     
             document.getElementById("setup").style.display = "none";
