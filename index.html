@@ -209,6 +209,7 @@
 
         function initChat() {
             // Récupération des valeurs depuis les champs input
+            const room = document.getElementById("roomInput").value.trim();
             monPseudo = document.getElementById("pseudoInput").value.trim() || "Anonyme";
             monVraiNom = document.getElementById("vraiNomInput").value.trim() || "Inconnu";
             const monIdDeBase = monPseudo + "#" + monVraiNom + "@" + room
