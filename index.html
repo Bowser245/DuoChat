@@ -198,7 +198,19 @@
             secure: true,
             port: 443
         };
-
+        function nettoyerTexte(texte) {
+            return texte
+                // 1. Remplace les espaces par des tirets bas
+                .replace(/\s+/g, '_')
+                // 2. Normalise les caractères accentués (décompose les caractères)
+                .normalize("NFD")
+                // 3. Supprime les marques diacritiques (les accents)
+                .replace(/[\u0300-\u036f]/g, "")
+                // 4. Remplace les emojis par des tirets
+                .replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '-')
+                // 5. Convertit tout en minuscules
+                .toLowerCase();
+        }        
         function toggleTheme() {
             const current = document.documentElement.getAttribute('data-theme');
             let next = 'light';
@@ -212,7 +224,7 @@
             const room = document.getElementById("roomInput").value.trim();
             monPseudo = document.getElementById("pseudoInput").value.trim() || "Anonyme";
             monVraiNom = document.getElementById("vraiNomInput").value.trim() || "Inconnu";
-            const monIdDeBase = monPseudo + "#" + monVraiNom + "@" + room
+            const monIdDeBase = nettoyerTexte(monPseudo + "#" + monVraiNom + "@" + room)
             console.log(monIdDeBase)
             // Sauvegarde dans le navigateur
             localStorage.setItem("duoPseudo", monPseudo);
